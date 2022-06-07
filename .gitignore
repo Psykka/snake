@@ -1,3 +1,11 @@
+# editor
+.vscode/*
+!.vscode/tasks.json
+
+# meson
+subprojects/*
+!subprojects/*.wrap
+
 # Prerequisites
 *.d
 
