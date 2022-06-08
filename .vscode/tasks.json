@@ -10,7 +10,7 @@
         {
             "label": "Run",
             "type": "process",
-            "command": "$./build/snake",
+            "command": "./build/snake",
             "windows": {
                 "command": ".\\build\\snake.exe"
             },
