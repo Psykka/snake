@@ -7,7 +7,7 @@ void draw()
 
 }
 
-int main(int argc, char *argv[]**/)
+int main(int argc, char *argv[])
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
