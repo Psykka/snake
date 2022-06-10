@@ -1,13 +1,39 @@
 #include "SDL.h"
+#include "stdio.h"
+#include <tuple>
 
-int table[25][25];
+#define SIZE 25
 
-void draw()
+int game[SIZE][SIZE];
+
+enum Objects
 {
+    WALL = 1,
+    HEAD,
+    BODY,
+    FOOD
+};
 
+void drawGame(SDL_Renderer *renderer)
+{
+    // for (int i = 0; i < 25; i++)
+    // {
+    // }
+    
+    SDL_Rect rect;
+
+    rect.h = 20;
+    rect.w = 20;
+    rect.x = 0;
+    rect.y = 20;
+
+    SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
+    SDL_RenderFillRect(renderer, &rect);
+
+    SDL_RenderPresent(renderer);
 }
 
-int main(int argc, char *argv[]**/)
+int main(int argc, char *argv[])
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
@@ -16,15 +42,22 @@ int main(int argc, char *argv[]**/)
 
     bool inputThisFrame = false;
 
-    for (int i = 0; i < 25; i++)
+    for (int i = 0; i < SIZE; i++)
     {
-        for (int j = 0; j < 25; j++)
-        {
-            
-        }
+        game[0][i] = Objects::WALL;
+        game[SIZE - 1][i] = Objects::WALL;
+        game[i][0] = Objects::WALL;
+        game[i][SIZE - 1] = Objects::WALL;
     }
-    
-    
+
+    // for (int i = 0; i < SIZE; i++)
+    // {
+    //     for (int j = 0; j < SIZE; j++)
+    //     {
+    //         printf("%i ", game[i][j]);
+    //     }
+    //     printf("\n");
+    // }
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -32,11 +65,13 @@ int main(int argc, char *argv[]**/)
         return 3;
     }
 
-    if (SDL_CreateWindowAndRenderer(500, 500, SDL_WINDOW_RESIZABLE, &window, &renderer))
+    if (SDL_CreateWindowAndRenderer(520, 500, SDL_WINDOW_RESIZABLE, &window, &renderer))
     {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window and renderer: %s", SDL_GetError());
         return 3;
     }
+
+    drawGame(renderer);
 
     while (true)
     {
@@ -46,25 +81,13 @@ int main(int argc, char *argv[]**/)
             break;
         }
 
-        if (event.type == SDL_KEYDOWN && inputThisFrame == false)
-        {
-            
-        }
+
+        // if (event.type == SDL_KEYDOWN && inputThisFrame == false)
+        // {
+        // }
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
-
-        SDL_Rect rect;
-
-        rect.h = 20;
-        rect.w = 20;
-        rect.x = 0;
-        rect.y = 0;
-
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-        SDL_RenderFillRect(renderer, &rect);
-
-        SDL_RenderPresent(renderer);
     }
 
     SDL_DestroyRenderer(renderer);
