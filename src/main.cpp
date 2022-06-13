@@ -8,8 +8,15 @@
 
 #define SIZE 25
 #define PIXEL 20
-#define WINDOW SIZE * PIXEL
+#define WINDOW SIZE *PIXEL
 #define FPS_CAP 120 // afeta a velocidade do jogo
+
+enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
 
 typedef struct
 {
@@ -17,15 +24,16 @@ typedef struct
     int y;
 } Position;
 
-int tailSize = 0;
-
+int total = 0;
+int direction = Direction::RIGHT;
 int yv = 0;     // velocidade y
 int xv = PIXEL; // velocidade x
 
-Position trail[SIZE * SIZE];
-// std::vector<Position> trail;
+// Position trail[SIZE * SIZE];
+std::vector<Position> trail;
 Position head = {20, 20};
 Position food;
+
 
 void drawPixel(SDL_Renderer *renderer, int x, int y, SDL_Color rgb)
 {
@@ -45,33 +53,41 @@ void createFood()
     srand(time(0));
     food.x = floor(rand() % WINDOW);
     food.y = floor(rand() % WINDOW);
+
+    for (Position tail : trail)
+    {
+        if (tail.x == food.x && tail.y == food.y)
+            createFood();
+    }
 }
 
 void reset()
 {
     head = {20, 20};
-    createFood();
-    tailSize = 0;
+    direction = Direction::RIGHT;
+
+    total = 0;
     xv = PIXEL;
     yv = 0;
+
+    createFood();
+    trail.clear();
 }
 
 void update()
 {
-    for (int i = 0; i < tailSize; i++)
+    if (trail.size() > 0)
     {
-        Position tail = trail[i];
-        trail[i + 1] = tail;
-
-        if (tail.x == head.x && tail.y == head.y)
-            reset();
-
-        std::cout << "(" << tail.x << ", " << tail.y << ") ";
+        trail.pop_back();
     }
 
-    trail[0] = head;
+    for (Position tail : trail)
+    {
+        if (tail.x == head.x && tail.y == head.y)
+            reset();
+    }
 
-    std::cout << "\n";
+    trail.insert(trail.begin(), head);
 
     head.x += xv;
     head.y += yv;
@@ -92,7 +108,7 @@ void gameLoop(SDL_Renderer *renderer)
     drawPixel(renderer, head.x, head.y, {0xDB, 0xDB, 0xDB, 0xFF});
 
     // render tail
-    for (int i = 0; i < tailSize; i++)
+    for (int i = 0; i < trail.size(); i++)
     {
         Position tail = trail[i];
         drawPixel(renderer, tail.x, tail.y, {0xFF, 0xFF, 0xFF, 0xFF});
@@ -101,7 +117,8 @@ void gameLoop(SDL_Renderer *renderer)
     if (head.x == food.x && head.y == food.y)
     {
         createFood();
-        tailSize++;
+        trail.push_back(head);
+        total++;
     }
 }
 
@@ -140,23 +157,27 @@ int main(int argc, char *argv[])
 
         if (event.type == SDL_KEYDOWN)
         {
-            if (event.key.keysym.scancode == SDL_SCANCODE_UP)
+            if (event.key.keysym.scancode == SDL_SCANCODE_UP && direction != Direction::DOWN)
             {
+                direction = Direction::UP;
                 xv = 0;
                 yv = -PIXEL;
             }
-            else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+            else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT && direction != Direction::RIGHT)
             {
+                direction = Direction::LEFT;
                 xv = -PIXEL;
                 yv = 0;
             }
-            else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+            else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN && direction != Direction::UP)
             {
+                direction = Direction::DOWN;
                 xv = 0;
                 yv = PIXEL;
             }
-            else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+            else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT && direction != Direction::LEFT)
             {
+                direction = Direction::RIGHT;
                 xv = PIXEL;
                 yv = 0;
             }
