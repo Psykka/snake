@@ -1,7 +1,10 @@
 #include "SDL.h"
 #include "stdio.h"
+
+#include <iostream>
 #include <time.h>
 #include <math.h>
+#include <vector>
 
 #define SIZE 25
 #define PIXEL 20
@@ -19,23 +22,10 @@ int tailSize = 0;
 int yv = 0;     // velocidade y
 int xv = PIXEL; // velocidade x
 
-Position tail[SIZE * SIZE];
+Position trail[SIZE * SIZE];
+// std::vector<Position> trail;
 Position head = {20, 20};
 Position food;
-
-int constrain(int x, int low, int high)
-{
-    if (x < low)
-    {
-        return low;
-    }
-    else if (high < x)
-    {
-        return high;
-    }
-    else
-        return x;
-}
 
 void drawPixel(SDL_Renderer *renderer, int x, int y, SDL_Color rgb)
 {
@@ -57,32 +47,62 @@ void createFood()
     food.y = floor(rand() % WINDOW);
 }
 
-void updateSpeed()
+void reset()
 {
+    head = {20, 20};
+    createFood();
+    tailSize = 0;
+    xv = PIXEL;
+    yv = 0;
+}
+
+void update()
+{
+    for (int i = 0; i < tailSize; i++)
+    {
+        Position tail = trail[i];
+        trail[i + 1] = tail;
+
+        if (tail.x == head.x && tail.y == head.y)
+            reset();
+
+        std::cout << "(" << tail.x << ", " << tail.y << ") ";
+    }
+
+    trail[0] = head;
+
+    std::cout << "\n";
+
     head.x += xv;
     head.y += yv;
 
-    head.x = constrain(head.x, 0, WINDOW - PIXEL);
-    head.y = constrain(head.y, 0, WINDOW - PIXEL);
+    if (head.x > WINDOW || head.y > WINDOW ||
+        head.x < 0 || head.y < 0)
+        reset();
 }
 
 void gameLoop(SDL_Renderer *renderer)
 {
-    updateSpeed();
+    update();
 
     // render food
     drawPixel(renderer, food.x, food.y, {0xF4, 0x35, 0x7F, 0xFF});
 
     // render player
-    drawPixel(renderer, head.x, head.y, {0xFF, 0xFF, 0xFF, 0xFF});
+    drawPixel(renderer, head.x, head.y, {0xDB, 0xDB, 0xDB, 0xFF});
+
+    // render tail
+    for (int i = 0; i < tailSize; i++)
+    {
+        Position tail = trail[i];
+        drawPixel(renderer, tail.x, tail.y, {0xFF, 0xFF, 0xFF, 0xFF});
+    }
 
     if (head.x == food.x && head.y == food.y)
     {
-        tailSize++;
         createFood();
+        tailSize++;
     }
-
-    SDL_RenderPresent(renderer);
 }
 
 int main(int argc, char *argv[])
@@ -99,7 +119,7 @@ int main(int argc, char *argv[])
 
     window = SDL_CreateWindow("Snake", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW, WINDOW, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
-    
+
     unsigned int a = SDL_GetTicks();
     unsigned int b = SDL_GetTicks();
     double delta = 0;
@@ -112,6 +132,7 @@ int main(int argc, char *argv[])
         delta += a - b;
 
         SDL_PollEvent(&event);
+
         if (event.type == SDL_QUIT)
         {
             break;
@@ -144,6 +165,7 @@ int main(int argc, char *argv[])
         if (delta > 1000 / FPS_CAP)
         {
             gameLoop(renderer);
+            SDL_RenderPresent(renderer);
             delta = 0;
         }
 
