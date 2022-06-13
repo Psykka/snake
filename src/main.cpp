@@ -1,7 +1,5 @@
 #include "SDL.h"
-#include "stdio.h"
 
-#include <iostream>
 #include <time.h>
 #include <math.h>
 #include <vector>
