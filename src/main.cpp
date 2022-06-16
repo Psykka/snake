@@ -6,8 +6,8 @@
 
 #define SIZE 25
 #define PIXEL 20
-#define WINDOW SIZE *PIXEL
-#define FPS_CAP 120 // afeta a velocidade do jogo
+#define WINDOW SIZE * PIXEL
+#define FPS_CAP 10 // afeta a velocidade do jogo
 
 enum Direction {
     UP,
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     while (true)
     {
         a = SDL_GetTicks();
-        delta += a - b;
+        delta = a - b;
 
         SDL_PollEvent(&event);
 
@@ -183,15 +183,15 @@ int main(int argc, char *argv[])
 
         if (delta > 1000 / FPS_CAP)
         {
+            b = a;
             gameLoop(renderer);
             SDL_RenderPresent(renderer);
-            delta = 0;
         }
-
-        b = SDL_GetTicks();
 
         SDL_SetRenderDrawColor(renderer, 0x38, 0x38, 0x38, 0xFF);
         SDL_RenderClear(renderer);
+
+        SDL_Delay(10);
     }
 
     SDL_DestroyRenderer(renderer);
