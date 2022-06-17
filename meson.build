@@ -19,4 +19,5 @@ sourceFiles = []
 subdir('src')
 
 executable('snake', sourceFiles,
-    dependencies: sdl2_dep)
+    dependencies: sdl2_dep,
+    win_subsystem: 'windows')
